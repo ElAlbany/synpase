@@ -1,0 +1,332 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   Synapse design tokens — "Graphite Aurora"
+   Dark-first. Light overrides under .light (next-themes).
+   ============================================================ */
+
+:root {
+  --bg: #fafafb;
+  --raised: #ffffff;
+  --overlay: rgba(0, 0, 0, 0.03);
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --ink: #16171b;
+  --mute: #5b5f68;
+  --faint: #8b8f98;
+  --accent: #5b58f0;
+  --violet: #8b5cf6;
+  --teal: #0d9488;
+  --danger: #e11d48;
+  --warning: #d97706;
+  --success: #059669;
+  --aurora: linear-gradient(135deg, #5b58f0, #8b5cf6 55%, #0d9488);
+}
+
+.dark {
+  --bg: #0a0b0e;
+  --raised: #111318;
+  --overlay: rgba(255, 255, 255, 0.04);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --ink: #f2f3f5;
+  --mute: #a1a5af;
+  --faint: #62666f;
+  --accent: #6e6bff;
+  --violet: #a78bfa;
+  --teal: #2dd4bf;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --aurora: linear-gradient(135deg, #6e6bff, #a78bfa 55%, #2dd4bf);
+}
+
+/* Map tokens to Tailwind utilities: bg-base, text-ink, border-line, ... */
+@theme inline {
+  --color-base: var(--bg);
+  --color-raised: var(--raised);
+  --color-overlay: var(--overlay);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-violet: var(--violet);
+  --color-teal: var(--teal);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- Composable utilities ---------- */
+
+@utility bg-aurora {
+  background-image: var(--aurora);
+}
+
+@utility text-aurora {
+  background-image: var(--aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass {
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ---------- Base ---------- */
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: 2px;
+}
+
+/* ---------- Aurora background ---------- */
+
+.blob {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.32;
+  will-change: transform;
+}
+.b1 { background: #4f46e5; top: -25%; left: -15%; animation: drift-1 38s ease-in-out infinite alternate; }
+.b2 { background: #7c3aed; top: -10%; right: -20%; animation: drift-2 46s ease-in-out infinite alternate; }
+.b3 { background: #0d9488; bottom: -35%; left: 20%; animation: drift-3 60s ease-in-out infinite alternate; }
+
+@keyframes drift-1 { to { transform: translate(12vw, 10vh) scale(1.15); } }
+@keyframes drift-2 { to { transform: translate(-10vw, 14vh) scale(0.9); } }
+@keyframes drift-3 { to { transform: translate(8vw, -12vh) scale(1.2); } }
+
+.gridmask {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 32%, black 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 32%, black 0%, transparent 75%);
+}
+
+/* Film grain overlay — kills gradient banding, adds texture */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Motion primitives ---------- */
+
+.word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(26px);
+  animation: word-in 0.7s var(--ease-out-expo) forwards;
+}
+@keyframes word-in {
+  to { opacity: 1; transform: none; }
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 10px var(--teal);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+@keyframes pulse-dot { 50% { opacity: 0.4; } }
+
+.kbd {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  background: var(--overlay);
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 2px 7px;
+  color: var(--mute);
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 15px;
+  background: var(--accent);
+  vertical-align: -2px;
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.scroll-hint {
+  animation: hint 2.4s ease-in-out infinite;
+}
+@keyframes hint { 50% { transform: translate(-50%, 8px); } }
+
+/* ---------- Floating chips (showcase) ---------- */
+
+.chip-float {
+  position: absolute;
+  background: color-mix(in srgb, var(--raised) 90%, transparent);
+  border: 1px solid var(--line-strong);
+  backdrop-filter: blur(12px);
+  border-radius: 11px;
+  padding: 9px 15px;
+  font-size: 12.5px;
+  font-weight: 500;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: float 7s ease-in-out infinite;
+  white-space: nowrap;
+  z-index: 10;
+}
+.chip-float .g {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-image: var(--aurora);
+}
+.cf1 { top: -24px; right: 6%; }
+.cf2 { bottom: -20px; left: 4%; animation-delay: -3s; }
+.cf3 { top: 38%; right: -40px; animation-delay: -5s; }
+@keyframes float { 50% { transform: translateY(-12px); } }
+
+/* ---------- Marquee ---------- */
+
+.mq {
+  display: flex;
+  gap: 56px;
+  width: max-content;
+  animation: mq 30s linear infinite;
+  white-space: nowrap;
+}
+@keyframes mq { to { transform: translateX(-50%); } }
+
+/* ---------- Wiki link pill (editor mock + future BlockNote styles) ---------- */
+
+.wl {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.92em;
+  color: color-mix(in srgb, var(--accent) 80%, white);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-bottom: 1.5px solid var(--accent);
+  border-radius: 4px;
+  padding: 1px 5px;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out-expo);
+}
+.wl:hover {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* ---------- Bento spotlight cards ---------- */
+
+.card {
+  position: relative;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px;
+  overflow: hidden;
+  transition: transform 0.24s var(--ease-out-expo), border-color 0.24s var(--ease-out-expo);
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    220px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--accent) 13%, transparent),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.card:hover::before { opacity: 1; }
+
+/* Mini terminal-ish demo inside bento cards */
+.mini {
+  margin-top: 18px;
+  background: color-mix(in srgb, var(--bg) 80%, black);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--mute);
+  line-height: 1.8;
+}
+.mini .hl {
+  color: color-mix(in srgb, var(--accent) 80%, white);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* ---------- Activity heatmap ---------- */
+
+.heat { display: grid; grid-template-rows: repeat(4, 1fr); gap: 3px; margin-top: 18px; }
+.heat .r { display: flex; gap: 3px; }
+.heat .c { flex: 1; height: 11px; border-radius: 3px; background: var(--overlay); }
+.heat .c.l1 { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+.heat .c.l2 { background: color-mix(in srgb, var(--accent) 50%, transparent); }
+.heat .c.l3 { background: var(--accent); }
+
+/* ---------- Knowledge graph (SVG) ---------- */
+
+.graph-wrap { position: relative; overflow: hidden; }
+.gnode { cursor: pointer; transition: opacity 0.25s; }
+.edge { stroke: var(--line-strong); stroke-width: 1.2; fill: none; transition: opacity 0.25s; }
+.edge.a {
+  stroke: url(#eg);
+  stroke-width: 1.6;
+  stroke-dasharray: 6 5;
+  animation: dash 1.4s linear infinite;
+}
+@keyframes dash { to { stroke-dashoffset: -22; } }
+.gwrap:hover .gnode:not(:hover) { opacity: 0.3; }
+.gwrap:hover .edge:not(.a) { opacity: 0.15; }
+.glow { filter: drop-shadow(0 0 8px rgba(110, 107, 255, 0.7)); }
+.nlabel {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  fill: var(--mute);
+}
+
+/* ---------- Reduced motion: kill all decoration ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .word { opacity: 1; transform: none; }
+}
