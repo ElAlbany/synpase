@@ -191,7 +191,7 @@ function NavItem({
         "flex items-center gap-2.5 rounded-lg py-2 text-[13px] font-medium transition-colors duration-150",
         collapsed ? "justify-center px-0" : "px-2.5",
         active
-          ? "bg-accent/14 text-accent"
+          ? "bg-accent/14 text-accent-ink"
           : "text-mute hover:bg-overlay hover:text-ink"
       )}
     >

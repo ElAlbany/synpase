@@ -78,7 +78,7 @@ export function Bento() {
       <div className="mt-14 grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-2">
           <div className={iconClass}>
-            <Type className="size-4.5 stroke-[#B9B7FF]" />
+            <Type className="size-4.5 stroke-accent-ink" />
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">
             A block editor that thinks in ideas
@@ -96,7 +96,7 @@ export function Bento() {
 
         <Card>
           <div className={iconClass}>
-            <Link2 className="size-4.5 stroke-[#B9B7FF]" />
+            <Link2 className="size-4.5 stroke-accent-ink" />
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">Links that link back</h3>
           <p className="text-[13.5px] leading-relaxed text-mute">
@@ -107,7 +107,7 @@ export function Bento() {
 
         <Card>
           <div className={iconClass}>
-            <Search className="size-4.5 stroke-[#B9B7FF]" />
+            <Search className="size-4.5 stroke-accent-ink" />
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">Search that keeps up</h3>
           <p className="text-[13.5px] leading-relaxed text-mute">
@@ -118,7 +118,7 @@ export function Bento() {
 
         <Card>
           <div className={iconClass}>
-            <CalendarDays className="size-4.5 stroke-[#B9B7FF]" />
+            <CalendarDays className="size-4.5 stroke-accent-ink" />
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">Daily notes &amp; streaks</h3>
           <p className="text-[13.5px] leading-relaxed text-mute">
@@ -130,7 +130,7 @@ export function Bento() {
 
         <Card>
           <div className={iconClass}>
-            <Download className="size-4.5 stroke-[#B9B7FF]" />
+            <Download className="size-4.5 stroke-accent-ink" />
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">Yours, even offline</h3>
           <p className="text-[13.5px] leading-relaxed text-mute">

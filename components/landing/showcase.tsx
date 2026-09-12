@@ -56,7 +56,7 @@ export function Showcase() {
           <span className="kbd mr-0.5">Cmd</span> K — command palette
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-line-strong bg-[rgba(15,16,22,0.82)] shadow-[0_40px_120px_rgba(0,0,0,.6),0_0_80px_rgba(110,107,255,.12)] backdrop-blur-xl">
+        <div className="dark-window overflow-hidden rounded-2xl border border-line-strong bg-[rgba(15,16,22,0.82)] shadow-[0_40px_120px_rgba(0,0,0,.6),0_0_80px_rgba(110,107,255,.12)] backdrop-blur-xl">
           {/* window bar */}
           <div className="flex items-center gap-2 border-b border-line px-4 py-3">
             <span className="size-[11px] rounded-full bg-[#FF5F57]" />

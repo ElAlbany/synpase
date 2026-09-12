@@ -19,7 +19,7 @@ export function seedNotesIfEmpty(): Promise<void> {
         tags: ["welcome", "guide"],
         isFavorite: true,
         content:
-          "This is your knowledge base. Everything you write lives in your browser — no account, no cloud.\n\nA few things to try:\n\n- Press the New note button in the sidebar\n- Type [[ to link to another note (coming fully alive with the block editor in Phase 2)\n- Read [[Linking your ideas]] to learn how connections work\n- Open the graph view to see your thinking take shape",
+          "This is your knowledge base. Everything you write lives in your browser — no account, no cloud.\n\nA few things to try:\n\n- Press the New note button in the sidebar\n- Type [[Linking your ideas]] — wiki-links are clickable and build your backlinks automatically\n- Read [[Linking your ideas]] to learn how connections work\n- Open the graph view to see your thinking take shape",
       });
 
       const linking = await createNote({
@@ -43,7 +43,7 @@ export function seedNotesIfEmpty(): Promise<void> {
       });
       await updateNote(welcome.id, {
         content:
-          "This is your knowledge base. Everything you write lives in your browser — no account, no cloud.\n\nA few things to try:\n\n- Press the New note button in the sidebar\n- Type [[ to link to another note (coming fully alive with the block editor in Phase 2)\n- Read [[Linking your ideas]] to learn how connections work\n- Explore [[The Graph]] to see your thinking take shape",
+          "This is your knowledge base. Everything you write lives in your browser — no account, no cloud.\n\nA few things to try:\n\n- Press the New note button in the sidebar\n- Type [[Linking your ideas]] — wiki-links are clickable and build your backlinks automatically\n- Read [[Linking your ideas]] to learn how connections work\n- Explore [[The Graph]] to see your thinking take shape",
       });
       void graph;
     })();

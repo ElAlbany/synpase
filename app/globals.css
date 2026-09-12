@@ -10,15 +10,16 @@
 :root {
   --bg: #fafafb;
   --raised: #ffffff;
-  --overlay: rgba(0, 0, 0, 0.03);
+  --overlay: rgba(0, 0, 0, 0.045);
   --line: rgba(0, 0, 0, 0.08);
   --line-strong: rgba(0, 0, 0, 0.14);
   --ink: #16171b;
-  --mute: #5b5f68;
-  --faint: #8b8f98;
-  --accent: #5b58f0;
+  --mute: #4b4f58;
+  --faint: #6d7179;
+  --accent: #4f4cd8;
+  --accent-ink: #4a47d6;
   --violet: #8b5cf6;
-  --teal: #0d9488;
+  --teal: #0f766e;
   --danger: #e11d48;
   --warning: #d97706;
   --success: #059669;
@@ -28,13 +29,14 @@
 .dark {
   --bg: #0a0b0e;
   --raised: #111318;
-  --overlay: rgba(255, 255, 255, 0.04);
+  --overlay: rgba(255, 255, 255, 0.055);
   --line: rgba(255, 255, 255, 0.08);
   --line-strong: rgba(255, 255, 255, 0.14);
   --ink: #f2f3f5;
-  --mute: #a1a5af;
-  --faint: #62666f;
+  --mute: #b7bbc4;
+  --faint: #7e828b;
   --accent: #6e6bff;
+  --accent-ink: #cbc9ff;
   --violet: #a78bfa;
   --teal: #2dd4bf;
   --danger: #f87171;
@@ -59,6 +61,7 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-success: var(--success);
+  --color-accent-ink: var(--accent-ink);
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -230,7 +233,7 @@
 .wl {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.92em;
-  color: color-mix(in srgb, var(--accent) 80%, white);
+  color: var(--accent-ink);
   background: color-mix(in srgb, var(--accent) 13%, transparent);
   border-bottom: 1.5px solid var(--accent);
   border-radius: 4px;
@@ -285,7 +288,7 @@
   line-height: 1.8;
 }
 .mini .hl {
-  color: color-mix(in srgb, var(--accent) 80%, white);
+  color: var(--accent-ink);
   background: color-mix(in srgb, var(--accent) 13%, transparent);
   border-radius: 4px;
   padding: 0 4px;
@@ -329,4 +332,56 @@
     transition: none !important;
   }
   .word { opacity: 1; transform: none; }
+}
+
+
+/* ---------- BlockNote editor integration ---------- */
+
+@utility stroke-accent-ink {
+  stroke: var(--accent-ink);
+}
+
+.bn-wrapper {
+  flex: 1;
+}
+.bn-wrapper .bn-editor {
+  font-size: 16.5px;
+  line-height: 1.75;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+/* Synapse wiki-links: real BlockNote link marks with synapse: hrefs */
+.bn-wrapper a[href^="synapse:"] {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.92em;
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-bottom: 1.5px solid var(--accent);
+  border-radius: 4px;
+  padding: 0 4px;
+  text-decoration: none;
+  transition: background 0.18s var(--ease-out-expo);
+}
+.bn-wrapper a[href^="synapse:"]:hover {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* Backlinks slide-over entrance */
+@keyframes panel-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: none; }
+}
+.backlinks-panel {
+  animation: panel-in 0.24s var(--ease-out-expo);
+}
+
+/* The landing showcase window is pinned dark in both themes —
+   its inner pills keep dark-scheme colors */
+.dark-window .wl {
+  color: #c7c5ff;
+  background: rgba(110, 107, 255, 0.13);
+  border-bottom-color: #6e6bff;
+}
+.dark-window .wl:hover {
+  background: rgba(110, 107, 255, 0.25);
 }

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { db } from "./index";
 import type { CreateNoteInput, Note, UpdateNoteInput } from "./schema";
+import { blocksToText } from "@/lib/wikilinks";
 
 export async function getNote(id: string): Promise<Note | undefined> {
   return db.notes.get(id);
@@ -61,12 +62,20 @@ export async function toggleFavorite(id: string): Promise<void> {
   await updateNote(id, { isFavorite: !note.isFavorite });
 }
 
-/** Phase 1 helper: content is a plain string until BlockNote lands. */
+/** Plain-text view of a note: legacy strings and BlockNote docs both work. */
 export function noteText(note: Note): string {
-  return typeof note.content === "string" ? note.content : "";
+  return blocksToText(note.content);
 }
 
 export function noteExcerpt(note: Note, max = 140): string {
   const text = noteText(note).replace(/\s+/g, " ").trim();
   return text.length > max ? `${text.slice(0, max)}…` : text;
+}
+
+/** Case-insensitive title lookup — used by [[wiki-link]] navigation. */
+export async function findNoteByTitle(title: string): Promise<Note | undefined> {
+  const t = title.trim().toLowerCase();
+  if (!t) return undefined;
+  const all = await db.notes.toArray();
+  return all.find((n) => n.title.trim().toLowerCase() === t);
 }

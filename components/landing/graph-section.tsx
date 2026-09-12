@@ -75,7 +75,7 @@ export function GraphSection() {
                       y={y - 22}
                       textAnchor="middle"
                       className="nlabel"
-                      fill="#C7C5FF"
+                      fill="var(--accent-ink)"
                     >
                       {LABELED.get(i)}
                     </text>

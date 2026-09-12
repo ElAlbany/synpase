@@ -28,7 +28,7 @@ Open http://localhost:3000
 
 - [x] **Phase 0 — Foundation & landing**: tokens, theme system, aurora background, landing page
 - [x] **Phase 1 — Data layer**: Dexie schema + CRUD, Zustand stores, collapsible sidebar with live tree, auto-save, home & note views
-- [ ] **Phase 2 — Editor**: BlockNote integration, wiki-links, backlinks
+- [x] **Phase 2 — Editor**: BlockNote (Synapse-themed), clickable [[wiki-links]] with auto-create, live backlinks panel
 - [ ] **Phase 3 — Graph & search**: React Flow graph, MiniSearch, command palette
 - [ ] **Phase 4 — Power features**: daily notes, export, tags
 - [ ] **Phase 5 — Portfolio ready**: seed data, README, performance audit, deploy
@@ -74,9 +74,13 @@ types/          shared model types
   (typed `unknown`, never indexed — zero schema migration needed).
 - Booleans are not valid IndexedDB keys: `isFavorite` is filtered in memory.
 - Deletes re-parent children instead of orphaning subtrees.
-- Auto-save debounces 800ms after the last keystroke; the topbar chip shows
-  Saving → Saved. Known refinement: opening a note triggers one redundant
-  no-op write (same content, bumps `updatedAt`) — cosmetic, fixed in Phase 2.
+- Auto-save debounces 800ms after the last keystroke (content-signature based,
+  immune to live-query identity storms), flushes pending edits on unmount so
+  navigating away never loses typed work, and drives the topbar Saving → Saved chip.
+- `[[wiki-links]]` are plain text in storage; on save they're upgraded to
+  BlockNote link marks (`synapse:<title>` hrefs). Clicking one navigates, or
+  creates the note Obsidian-style if it doesn't exist yet. Backlinks are
+  computed by scanning note text — no links table needed at this scale.
 
 All motion uses `--ease-out-expo` (`cubic-bezier(.16,1,.3,1)`) with 120–400ms durations,
 and everything decorative is disabled under `prefers-reduced-motion`.

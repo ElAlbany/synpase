@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronRight,
   CornerDownRight,
@@ -38,6 +38,8 @@ function TreeNode({ node, collapsed }: { node: TreeNode; collapsed: boolean }) {
   const { deleteNote, toggleFavorite, createNote } = useNotesStore();
   const router = useRouter();
 
+  const pathname = usePathname();
+  const isActive = pathname === `/app/note/${node.note.id}`;
   const hasChildren = node.children.length > 0;
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -67,7 +69,8 @@ function TreeNode({ node, collapsed }: { node: TreeNode; collapsed: boolean }) {
     <div>
       <div
         className={cn(
-          "group relative flex items-center gap-1 rounded-lg py-1.5 pr-1 text-[13px] text-mute transition-colors duration-150 hover:bg-overlay hover:text-ink"
+          "group relative flex items-center gap-1 rounded-lg py-1.5 pr-1 text-[13px] transition-colors duration-150 hover:bg-overlay" +
+          (isActive ? " bg-accent/10 text-accent-ink" : " text-mute hover:text-ink")
         )}
       >
         {hasChildren ? (

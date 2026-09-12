@@ -3,33 +3,26 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLiveQuery } from "dexie-react-hooks";
 import { format, formatDistanceToNow } from "date-fns";
-import { Clock, FileText, Network, Plus, Sparkles, Star, Tag } from "lucide-react";
+import {
+  Clock,
+  FileText,
+  Network,
+  Plus,
+  Sparkles,
+  Star,
+  Tag,
+} from "lucide-react";
 import { db } from "@/db";
 import { noteExcerpt } from "@/db/notes";
 import { seedNotesIfEmpty } from "@/db/seed";
 import { tagColor } from "@/lib/tree";
 import { useNotesStore } from "@/stores/useNotesStore";
 
-function useNotesQuery() {
-  const [notes, setNotes] = React.useState<Awaited<ReturnType<typeof db.notes.toArray>>>();
-
-  React.useEffect(() => {
-    let active = true;
-    db.notes.toArray().then((value) => {
-      if (active) setNotes(value);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  return notes;
-}
-
 export default function HomePage() {
   const router = useRouter();
-  const notes = useNotesQuery();
+  const notes = useLiveQuery(() => db.notes.toArray(), []);
   const { createNote, toggleFavorite } = useNotesStore();
   const [seeding, setSeeding] = React.useState(false);
 
@@ -57,7 +50,13 @@ export default function HomePage() {
 
   const hour = new Date().getHours();
   const greeting =
-    hour < 5 ? "Working late" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    hour < 5
+      ? "Working late"
+      : hour < 12
+        ? "Good morning"
+        : hour < 18
+          ? "Good afternoon"
+          : "Good evening";
 
   const handleNew = async () => {
     const note = await createNote();
@@ -71,9 +70,7 @@ export default function HomePage() {
   };
 
   if (notes.length === 0 && !seeding) {
-    return (
-      <EmptyState onSeed={handleSeed} onNew={handleNew} />
-    );
+    return <EmptyState onSeed={handleSeed} onNew={handleNew} />;
   }
 
   return (
@@ -81,9 +78,7 @@ export default function HomePage() {
       {/* greeting */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-[-0.02em]">
-            {greeting}.
-          </h1>
+          <h1 className="text-3xl font-bold tracking-[-0.02em]">{greeting}.</h1>
           <p className="mt-1.5 text-sm text-faint">
             {format(new Date(), "EEEE, MMMM d")} · {notes.length} note
             {notes.length === 1 ? "" : "s"}
@@ -118,10 +113,7 @@ export default function HomePage() {
       {/* favorites */}
       {favorites.length > 0 && (
         <>
-          <SectionTitle
-            icon={<Star className="size-4" />}
-            title="Favorites"
-          />
+          <SectionTitle icon={<Star className="size-4" />} title="Favorites" />
           <div className="flex flex-col gap-1">
             {favorites.map((n) => (
               <Link
@@ -167,7 +159,13 @@ export default function HomePage() {
   );
 }
 
-function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string }) {
+function SectionTitle({
+  icon,
+  title,
+}: {
+  icon: React.ReactNode;
+  title: string;
+}) {
   return (
     <h2 className="mt-12 mb-4 flex items-center gap-2 text-sm font-semibold tracking-wide text-faint uppercase">
       {icon}
