@@ -48,12 +48,10 @@ export async function updateNote(id: string, changes: UpdateNoteInput): Promise<
 export async function deleteNote(id: string): Promise<void> {
   const note = await db.notes.get(id);
   if (!note) return;
-  const children = await db.notes.where("parentId").equals(id).toArray();
   await db.transaction("rw", db.notes, async () => {
     await db.notes.where("parentId").equals(id).modify({ parentId: note.parentId });
     await db.notes.delete(id);
   });
-  void children;
 }
 
 export async function toggleFavorite(id: string): Promise<void> {

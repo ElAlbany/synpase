@@ -5,13 +5,13 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Link2, PanelRightClose, PanelRightOpen, Tag } from "lucide-react";
+import { ArrowLeft, Link2, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { db } from "@/db";
 import type { Note } from "@/db/schema";
 import { blocksToText, getBacklinks } from "@/lib/wikilinks";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { BacklinksPanel } from "@/components/editor/BacklinksPanel";
-import { tagColor } from "@/lib/tree";
+import { TagEditor } from "@/components/editor/TagEditor";
 
 const BlockEditor = dynamic(
   () =>
@@ -131,27 +131,7 @@ function EditorShell({
         <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-8 py-8">
           {/* meta row */}
           <div className="flex flex-none flex-wrap items-center gap-3 text-xs text-faint">
-            <span className="flex items-center gap-1.5">
-              <Tag className="size-3.5" />
-              {note.tags.length > 0 ? (
-                <span className="flex gap-1.5">
-                  {note.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full px-2 py-0.5 text-[10.5px] font-medium"
-                      style={{
-                        color: tagColor(t),
-                        backgroundColor: `${tagColor(t)}18`,
-                      }}
-                    >
-                      #{t}
-                    </span>
-                  ))}
-                </span>
-              ) : (
-                "No tags"
-              )}
-            </span>
+            <TagEditor note={note} />
             <span className="flex-1" />
             <span>{words} words</span>
             <span>·</span>

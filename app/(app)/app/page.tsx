@@ -267,9 +267,10 @@ function EmptyState({
           </button>
           <button
             onClick={onNew}
-            className="rounded-[10px] border border-line bg-overlay px-4 py-2.5 text-sm font-medium transition-colors duration-150 hover:border-line-strong"
+            className="flex items-center justify-center gap-2 rounded-[10px] border border-line bg-overlay px-4 py-2.5 text-sm font-medium transition-colors duration-150 hover:border-line-strong"
           >
             Create your first note
+            <kbd className="kbd">C</kbd>
           </button>
         </div>
       </div>

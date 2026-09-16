@@ -28,3 +28,13 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# project docs (local reference only)
+synpase project documentation.txt
+synapse-design-spec.md
+
+# editor
+.vscode/
+
+# test coverage output
+coverage/

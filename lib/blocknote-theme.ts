@@ -1,16 +1,15 @@
-import type { PartialTheme } from "@blocknote/core";
+import type { Theme } from "@blocknote/mantine";
 
 /**
  * Synapse themes for BlockNote — mirrors the "Graphite Aurora" tokens.
  * (Static hexes; BlockNote needs JS values, not CSS vars.)
  */
 
-export const synapseDark: PartialTheme = {
+export const synapseDark: Theme = {
   colors: {
     editor: {
       text: "#F2F3F5",
       background: "transparent",
-      primary: "#6E6BFF",
     },
     menu: { text: "#F2F3F5", background: "#111318" },
     tooltip: { text: "#F2F3F5", background: "#111318" },
@@ -25,12 +24,11 @@ export const synapseDark: PartialTheme = {
   fontFamily: "inherit",
 };
 
-export const synapseLight: PartialTheme = {
+export const synapseLight: Theme = {
   colors: {
     editor: {
       text: "#16171B",
       background: "transparent",
-      primary: "#4F4CD8",
     },
     menu: { text: "#16171B", background: "#FFFFFF" },
     tooltip: { text: "#16171B", background: "#FFFFFF" },

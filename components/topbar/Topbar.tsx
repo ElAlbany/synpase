@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Check, ChevronRight, Loader2 } from "lucide-react";
 import { db } from "@/db";
+import type { Note } from "@/db/schema";
 import { useNotesStore } from "@/stores/useNotesStore";
+import { ExportMenu } from "./ExportMenu";
 
 export function Topbar() {
   const pathname = usePathname();
@@ -15,7 +17,7 @@ export function Topbar() {
     ? pathname.split("/")[3]
     : null;
 
-  const note = useLiveQuery(
+  const note = useLiveQuery<Note | undefined>(
     () => (noteId ? db.notes.get(noteId) : Promise.resolve(undefined)),
     [noteId]
   );
@@ -40,6 +42,8 @@ export function Topbar() {
       </nav>
 
       <div className="flex-1" />
+
+      <ExportMenu note={note} noteId={noteId} />
 
       {/* save status chip */}
       <div className="flex h-7 min-w-[88px] items-center justify-end gap-1.5 text-xs text-faint">

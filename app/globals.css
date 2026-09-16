@@ -385,3 +385,90 @@
 .dark-window .wl:hover {
   background: rgba(110, 107, 255, 0.25);
 }
+
+/* ---------- Knowledge graph (React Flow) — Phase 3 ----------
+   Custom node: glowing dot + halo + mono label. Classes used by
+   components/graph/KnowledgeGraph.tsx. */
+
+.kg-canvas .react-flow__attribution {
+  background: transparent;
+  color: var(--faint);
+}
+.kg-canvas .react-flow__edge-path {
+  transition: stroke-opacity 0.22s var(--ease-out-expo);
+}
+
+.kg-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: opacity 0.22s var(--ease-out-expo);
+}
+.kg-node.kg-dim { opacity: 0.15; }
+
+.kg-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.kg-dot {
+  position: relative;
+  flex: none;
+  border-radius: 50%;
+  transition: transform 0.22s var(--ease-out-expo);
+}
+.kg-node:hover .kg-dot { transform: scale(1.18); }
+
+/* "You are here" ring around the currently open note */
+.kg-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: kg-ping 2.6s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes kg-ping {
+  0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+  70%, 100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+}
+
+.kg-here {
+  position: absolute;
+  top: 100%;
+  margin-top: 22px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kg-label {
+  margin-top: 5px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  line-height: 1.3;
+  color: var(--mute);
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  pointer-events: none;
+}
+.kg-node:hover .kg-label { color: var(--ink); }
+
+/* Invisible connection points for React Flow edges */
+.kg-handle { opacity: 0; pointer-events: none; }

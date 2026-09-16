@@ -3,7 +3,22 @@
 Your personal knowledge graph. Write, connect, and explore ideas — fully offline.
 
 > Design language: **"Graphite Aurora"** — dark-first, calm on the surface, alive underneath.
-> Full spec lives in `DESIGN.md` (see `/mnt/agents/output/synapse-design-spec.md`).
+> Full spec: `synapse-design-spec.md`.
+
+## Features
+
+- **Block editor** (BlockNote, Synapse-themed) with autosave — writes live in
+  IndexedDB, works fully offline
+- **[[Wiki-links]] + backlinks** — plain-text links upgraded to clickable marks
+  on save; backlinks panel with context snippets; links auto-create notes
+- **Knowledge graph** — force-directed canvas (@xyflow/react), node size by
+  backlink count, color by tag
+- **Full-text search** (MiniSearch) with title boosting, prefix/fuzzy match,
+  tag filters and match highlighting
+- **Command palette** — `Cmd/Ctrl+K` fuzzy jump/create/actions
+- **Tags** with a stable hashed color palette, plus **daily notes** and
+  **Markdown/JSON export**
+- **Themes** — dark / light / system via next-themes
 
 ## Stack
 
@@ -24,14 +39,33 @@ Open http://localhost:3000
 > Note: `next/font/google` downloads fonts at build time — first `dev`/`build`
 > needs a network connection.
 
+## Testing
+
+```bash
+npm test               # one-shot run (vitest run)
+npm run test:watch     # watch mode
+npm run test:coverage  # coverage report (v8)
+```
+
+- **Unit tests** (`tests/unit/`) — pure logic, no rendering: wiki-link
+  extraction/transformation, backlinks, tree building + tag colors, MiniSearch
+  indexing/highlighting/excerpts, deterministic graph layout, Markdown/JSON
+  export, daily-note titles.
+- **Integration tests** (`tests/integration/`) — Dexie runs on
+  `fake-indexeddb` (in-memory IndexedDB) and components are rendered with
+  Testing Library: notes CRUD helpers, the ⌘K command palette (filter,
+  navigate, create, keyboard), and the tag editor (add/remove/limits).
+- The database is cleared between tests (`db.notes` + `db.settings`), so
+  suites are order-independent.
+
 ## Roadmap (phases)
 
 - [x] **Phase 0 — Foundation & landing**: tokens, theme system, aurora background, landing page
 - [x] **Phase 1 — Data layer**: Dexie schema + CRUD, Zustand stores, collapsible sidebar with live tree, auto-save, home & note views
 - [x] **Phase 2 — Editor**: BlockNote (Synapse-themed), clickable [[wiki-links]] with auto-create, live backlinks panel
-- [ ] **Phase 3 — Graph & search**: React Flow graph, MiniSearch, command palette
-- [ ] **Phase 4 — Power features**: daily notes, export, tags
-- [ ] **Phase 5 — Portfolio ready**: seed data, README, performance audit, deploy
+- [x] **Phase 3 — Graph & search**: React Flow graph, MiniSearch, command palette
+- [x] **Phase 4 — Power features**: daily notes, export, tags
+- [x] **Phase 5 — Quality**: test harness (Vitest + Testing Library + fake-indexeddb), unit & integration coverage
 
 ## Structure
 
@@ -46,13 +80,15 @@ components/
   landing/      nav, hero, showcase, marquee, bento, graph-section, footer
   sidebar/      Sidebar (collapsible shell) + NoteTree (recursive, live)
   topbar/       breadcrumb + save-status chip
-  editor/       NoteEditor (temporary plain editor; BlockNote in Phase 2)
+  palette/      ⌘K command palette (fuzzy jump / create / actions / tags)
+  graph/        knowledge-graph canvas (@xyflow/react)
+  editor/       NoteEditor (BlockNote), TagEditor, backlinks panel
   theme-*.tsx   next-themes provider + toggle
   aurora.tsx / grain.tsx   living background + film grain
-db/             Dexie instance, schema, CRUD helpers, seed
+db/             Dexie instance, schema, CRUD helpers, settings
+hooks/          useDebounce, useAutoSave, useKeyboardShortcuts
+lib/            wiki-links, search (MiniSearch), graph layout, export, tree, daily
 stores/         useNotesStore (save status + actions), useUIStore (persisted)
-hooks/          useDebounce, useAutoSave
-lib/            tree builder, tag palette, cn()
 types/          shared model types
 ```
 
