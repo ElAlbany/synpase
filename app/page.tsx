@@ -1,3 +1,4 @@
+import { Aurora } from "@/components/aurora";
 import { Nav } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
 import { Showcase } from "@/components/landing/showcase";
@@ -9,6 +10,7 @@ import { Footer } from "@/components/landing/footer";
 export default function LandingPage() {
   return (
     <>
+      <Aurora />
       <Nav />
       <main>
         <Hero />

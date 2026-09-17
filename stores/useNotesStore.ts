@@ -7,6 +7,7 @@ import {
   toggleFavorite as dbToggleFavorite,
   updateNote,
 } from "@/db/notes";
+import { maybeSnapshot } from "@/db/history";
 import type { CreateNoteInput, Note, UpdateNoteInput } from "@/db/schema";
 
 export type SaveStatus = "idle" | "saving" | "saved";
@@ -35,6 +36,8 @@ export const useNotesStore = create<NotesState>((set) => ({
     if (savedTimer) clearTimeout(savedTimer);
     set({ saveStatus: "saving" });
     await updateNote(id, changes);
+    // Version history — fire-and-forget, never blocks the save-status chip.
+    void maybeSnapshot(id);
     set({ saveStatus: "saved" });
     savedTimer = setTimeout(() => set({ saveStatus: "idle" }), 1600);
   },

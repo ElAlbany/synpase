@@ -32,6 +32,31 @@ describe("buildGraphData", () => {
     expect(edges).toEqual([{ source: "src", target: "target" }]);
   });
 
+  it("builds edges from native link inline content (saved BlockNote docs)", () => {
+    const notes = [
+      note({ id: "target", title: "Target Note" }),
+      note({
+        id: "src",
+        title: "Source",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", text: "go read ", styles: {} },
+              {
+                type: "link",
+                href: "synapse:Target%20Note",
+                content: [{ type: "text", text: "[[Target Note]]", styles: {} }],
+              },
+            ],
+          },
+        ],
+      }),
+    ];
+    const { edges } = buildGraphData(notes);
+    expect(edges).toEqual([{ source: "src", target: "target" }]);
+  });
+
   it("drops self-links", () => {
     const { edges } = buildGraphData([
       note({ id: "a", title: "Self", content: "[[Self]]" }),

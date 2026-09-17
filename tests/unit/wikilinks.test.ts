@@ -97,29 +97,57 @@ describe("blocksToText", () => {
   it("skips non-record runs inside content arrays", () => {
     expect(blocksToText([para(text("keep"), null, 7)])).toBe("keep");
   });
+
+  it("extracts text from native link inline content", () => {
+    const blocks = [
+      para(
+        text("see "),
+        {
+          type: "link",
+          href: "synapse:Alpha",
+          content: [{ type: "text", text: "[[Alpha]]", styles: {} }],
+        },
+        text(" now")
+      ),
+    ];
+    expect(blocksToText(blocks)).toBe("see [[Alpha]] now");
+  });
+
+  it("extracts [[links]] even when split across runs by the transform", () => {
+    const blocks = [
+      para(
+        { type: "link", href: "synapse:Alpha", content: [text("[[Alpha]]")] },
+        text(" ")
+      ),
+    ];
+    expect(extractWikiLinks(blocksToText(blocks))).toEqual(["Alpha"]);
+  });
 });
 
 describe("transformWikiLinks", () => {
-  it("splits a run around a link and marks the link with a synapse: href", () => {
+  it("splits a run around a link and inserts native link inline content", () => {
     const blocks = [para({ type: "text", text: "see [[Alpha Note]] now" })];
-    const out = transformWikiLinks(blocks) as Array<{ content: Array<Record<string, unknown>> }>;
+    const out = transformWikiLinks(blocks) as Array<{
+      content: Array<Record<string, unknown>>;
+    }>;
 
     expect(out[0].content).toHaveLength(3);
     expect(out[0].content[0]).toMatchObject({ text: "see " });
-    expect(out[0].content[1]).toMatchObject({
-      text: "[[Alpha Note]]",
-      styles: { link: "synapse:Alpha Note" },
+    expect(out[0].content[1]).toEqual({
+      type: "link",
+      href: "synapse:Alpha%20Note",
+      content: [{ type: "text", text: "[[Alpha Note]]", styles: {} }],
     });
     expect(out[0].content[2]).toMatchObject({ text: " now" });
   });
 
-  it("preserves existing styles on the split runs", () => {
+  it("preserves existing styles on the link's inner run", () => {
     const run = { type: "text", text: "[[Bold Link]]", styles: { bold: true } };
     const out = transformWikiLinks([para(run)]) as Array<{
-      content: Array<{ styles: Record<string, unknown> }>;
+      content: Array<{ content: Array<{ styles: Record<string, unknown> }> }>;
     }>;
     expect(out[0].content).toHaveLength(1);
-    expect(out[0].content[0].styles).toEqual({ bold: true, link: "synapse:Bold Link" });
+    expect(out[0].content[0].content[0].styles).toEqual({ bold: true });
   });
 
   it("leaves runs without links untouched (same reference)", () => {
@@ -130,10 +158,11 @@ describe("transformWikiLinks", () => {
 
   it("handles a run made of only a link", () => {
     const out = transformWikiLinks([para({ type: "text", text: "[[Solo]]" })]) as Array<{
-      content: Array<{ text: string; styles: { link: string } }>;
+      content: Array<{ type: string; href: string }>;
     }>;
     expect(out[0].content).toHaveLength(1);
-    expect(out[0].content[0].styles.link).toBe("synapse:Solo");
+    expect(out[0].content[0].type).toBe("link");
+    expect(out[0].content[0].href).toBe("synapse:Solo");
   });
 
   it("recurses into nested children", () => {
@@ -144,17 +173,28 @@ describe("transformWikiLinks", () => {
       },
     ];
     const out = transformWikiLinks(blocks) as Array<{
-      children: Array<{ content: Array<{ styles?: { link?: string } }> }>;
+      children: Array<{ content: Array<{ type?: string; href?: string }> }>;
     }>;
     const childContent = out[0].children[0].content;
     expect(childContent).toHaveLength(2);
-    expect(childContent[1].styles?.link).toBe("synapse:Beta");
+    expect(childContent[1].type).toBe("link");
+    expect(childContent[1].href).toBe("synapse:Beta");
   });
 
   it("leaves non-text runs alone", () => {
     const mention = { type: "mention", text: "[[NotALink]]" };
     const out = transformWikiLinks([para(mention)]) as Array<{ content: unknown[] }>;
     expect(out[0].content[0]).toBe(mention);
+  });
+
+  it("leaves existing link runs alone (no double transform)", () => {
+    const link = {
+      type: "link",
+      href: "synapse:Alpha",
+      content: [{ type: "text", text: "[[Alpha]]", styles: {} }],
+    };
+    const out = transformWikiLinks([para(link)]) as Array<{ content: unknown[] }>;
+    expect(out[0].content[0]).toBe(link);
   });
 
   it("passes non-array input through", () => {

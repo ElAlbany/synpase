@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { ArrowRight, Play } from "lucide-react";
 
 function Words({
   words,
@@ -46,13 +47,14 @@ export function Hero() {
       </p>
 
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
-        <Button variant="primary" size="lg">
+        <Link href="/app" className={buttonVariants({ variant: "primary", size: "lg" })}>
           Open Synapse
           <ArrowRight className="size-3.75" />
-        </Button>
-        <Button variant="ghost" size="lg">
+        </Link>
+        <a href="#demo" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+          <Play className="size-3.75" />
           Watch demo
-        </Button>
+        </a>
       </div>
 
       <div className="mt-8.5 flex items-center gap-2 text-[13px] text-faint">

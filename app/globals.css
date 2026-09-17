@@ -15,7 +15,7 @@
   --line-strong: rgba(0, 0, 0, 0.14);
   --ink: #16171b;
   --mute: #4b4f58;
-  --faint: #6d7179;
+  --faint: #5d6169; /* was #6d7179 (4.2:1 on overlay, 4.7:1 on bg) — AA fix: now 5.4:1 / 5.9:1 */
   --accent: #4f4cd8;
   --accent-ink: #4a47d6;
   --violet: #8b5cf6;
@@ -24,6 +24,17 @@
   --warning: #d97706;
   --success: #059669;
   --aurora: linear-gradient(135deg, #5b58f0, #8b5cf6 55%, #0d9488);
+
+  /* Tag palette — light-tuned variants of the 8 dark hues (design spec §5).
+     Indices match tagIndex() in lib/tree.ts. Ratios on white / on --bg: */
+  --tag-0: #4f4cd8; /* indigo   6.3:1 / 6.0:1 */
+  --tag-1: #7c3aed; /* violet   5.7:1 / 5.4:1 */
+  --tag-2: #0f766e; /* teal     5.5:1 / 5.2:1 */
+  --tag-3: #b45309; /* amber    5.0:1 / 4.8:1 */
+  --tag-4: #b91c1c; /* red      6.5:1 / 6.2:1 */
+  --tag-5: #047857; /* green    5.5:1 / 5.3:1 */
+  --tag-6: #1d4ed8; /* blue     6.7:1 / 6.4:1 */
+  --tag-7: #be185d; /* pink     6.0:1 / 5.8:1 */
 }
 
 .dark {
@@ -43,6 +54,16 @@
   --warning: #fbbf24;
   --success: #34d399;
   --aurora: linear-gradient(135deg, #6e6bff, #a78bfa 55%, #2dd4bf);
+
+  /* Tag palette — original dark-tuned hues; all ≥4.5:1 on --bg (worst: indigo 4.9:1). */
+  --tag-0: #6e6bff; /* indigo */
+  --tag-1: #a78bfa; /* violet */
+  --tag-2: #2dd4bf; /* teal */
+  --tag-3: #f59e0b; /* amber */
+  --tag-4: #f87171; /* red */
+  --tag-5: #34d399; /* green */
+  --tag-6: #60a5fa; /* blue */
+  --tag-7: #f472b6; /* pink */
 }
 
 /* Map tokens to Tailwind utilities: bg-base, text-ink, border-line, ... */
@@ -243,6 +264,30 @@
 }
 .wl:hover {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* ---------- Theme-aware tag pills ----------
+   tagIndex() in lib/tree.ts maps a tag name to 0–7 (same hash as the
+   canvas palette); the class picks the per-theme --tag-N token. */
+
+.tag-0 { --tag: var(--tag-0); }
+.tag-1 { --tag: var(--tag-1); }
+.tag-2 { --tag: var(--tag-2); }
+.tag-3 { --tag: var(--tag-3); }
+.tag-4 { --tag: var(--tag-4); }
+.tag-5 { --tag: var(--tag-5); }
+.tag-6 { --tag: var(--tag-6); }
+.tag-7 { --tag: var(--tag-7); }
+
+.tag-pill {
+  color: var(--tag);
+  background: color-mix(in srgb, var(--tag) 10%, transparent);
+  border-color: color-mix(in srgb, var(--tag) 30%, transparent);
+}
+/* Selected filter chips: stronger tint so the active state reads clearly. */
+.tag-pill-active {
+  background: color-mix(in srgb, var(--tag) 18%, transparent);
+  border-color: color-mix(in srgb, var(--tag) 45%, transparent);
 }
 
 /* ---------- Bento spotlight cards ---------- */

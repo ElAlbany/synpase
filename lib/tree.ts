@@ -35,8 +35,16 @@ const TAG_PALETTE = [
   "#F87171", "#34D399", "#60A5FA", "#F472B6",
 ];
 
-export function tagColor(tag: string): string {
+/** Stable palette index (0–7) for a tag name. Pair with the .tag-N /
+    .tag-pill CSS classes, which resolve to per-theme --tag-N tokens. */
+export function tagIndex(tag: string): number {
   let h = 0;
   for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) | 0;
-  return TAG_PALETTE[Math.abs(h) % TAG_PALETTE.length];
+  return Math.abs(h) % TAG_PALETTE.length;
+}
+
+/** Dark-tuned hex from TAG_PALETTE. Canvas/graph rendering only (SVG/canvas
+    can't use CSS classes) — DOM tag pills should use tagIndex + .tag-pill. */
+export function tagColor(tag: string): string {
+  return TAG_PALETTE[tagIndex(tag)];
 }

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { db } from "./index";
+import { deleteSnapshotsForNote } from "./history";
 import type { CreateNoteInput, Note, UpdateNoteInput } from "./schema";
 import { blocksToText } from "@/lib/wikilinks";
 
@@ -43,14 +44,15 @@ export async function updateNote(id: string, changes: UpdateNoteInput): Promise<
 
 /**
  * Deletes a note and re-parents its children onto the deleted note's parent,
- * so the tree never orphans subtrees.
+ * so the tree never orphans subtrees. Its version history goes with it.
  */
 export async function deleteNote(id: string): Promise<void> {
   const note = await db.notes.get(id);
   if (!note) return;
-  await db.transaction("rw", db.notes, async () => {
+  await db.transaction("rw", db.notes, db.snapshots, async () => {
     await db.notes.where("parentId").equals(id).modify({ parentId: note.parentId });
     await db.notes.delete(id);
+    await deleteSnapshotsForNote(id);
   });
 }
 
@@ -76,4 +78,14 @@ export async function findNoteByTitle(title: string): Promise<Note | undefined> 
   if (!t) return undefined;
   const all = await db.notes.toArray();
   return all.find((n) => n.title.trim().toLowerCase() === t);
+}
+
+/**
+ * Wiki-link navigation target: find a note by (trimmed) title, or create it
+ * Obsidian-style. Returns null for blank titles — never creates "Untitled".
+ */
+export async function resolveOrCreateNote(title: string): Promise<Note | null> {
+  const t = title.trim();
+  if (!t) return null;
+  return (await findNoteByTitle(t)) ?? createNote({ title: t });
 }

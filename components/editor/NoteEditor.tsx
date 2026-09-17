@@ -5,12 +5,13 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Link2, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { ArrowLeft, History, Link2, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { db } from "@/db";
 import type { Note } from "@/db/schema";
 import { blocksToText, getBacklinks } from "@/lib/wikilinks";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { BacklinksPanel } from "@/components/editor/BacklinksPanel";
+import { HistoryPanel } from "@/components/editor/HistoryPanel";
 import { TagEditor } from "@/components/editor/TagEditor";
 
 const BlockEditor = dynamic(
@@ -48,6 +49,9 @@ export function NoteEditor({ noteId }: { noteId: string }) {
     null
   );
   const [hydratedId, setHydratedId] = React.useState<string | null>(null);
+  // Bumped after a history restore — remounts EditorShell with the restored
+  // draft so title and BlockEditor re-initialize from the snapshot.
+  const [reloadToken, setReloadToken] = React.useState(0);
 
   // Hydrate exactly once per note (see Phase 1 — our own autosave must never
   // fight the user's cursor).
@@ -57,6 +61,15 @@ export function NoteEditor({ noteId }: { noteId: string }) {
       setHydratedId(noteId);
     }
   }, [note, noteId, hydratedId]);
+
+  // The live query races the restore write, so re-read the note straight from
+  // the DB (restoreSnapshot's updateNote has already committed by then).
+  const handleRestored = React.useCallback(async () => {
+    const fresh = await db.notes.get(noteId);
+    if (!fresh) return;
+    setDraft({ title: fresh.title, json: toInitialJson(fresh.content) });
+    setReloadToken((t) => t + 1);
+  }, [noteId]);
 
   if (note === undefined || (note !== null && draft === null)) {
     return (
@@ -85,11 +98,12 @@ export function NoteEditor({ noteId }: { noteId: string }) {
 
   return (
     <EditorShell
-      key={noteId}
+      key={`${noteId}:${reloadToken}`}
       noteId={noteId}
       note={note}
       initial={draft!}
       allNotes={notes ?? []}
+      onRestored={handleRestored}
     />
   );
 }
@@ -99,15 +113,23 @@ function EditorShell({
   note,
   initial,
   allNotes,
+  onRestored,
 }: {
   noteId: string;
   note: Note;
   initial: { title: string; json: string };
   allNotes: Note[];
+  onRestored: () => void;
 }) {
   const [title, setTitle] = React.useState(initial.title);
   const [json, setJson] = React.useState(initial.json);
   const [showBacklinks, setShowBacklinks] = React.useState(false);
+  const [showHistory, setShowHistory] = React.useState(false);
+
+  const snapshotCount = useLiveQuery(
+    () => db.snapshots.where("noteId").equals(noteId).count(),
+    [noteId]
+  );
 
   useAutoSave(noteId, { title, json });
 
@@ -139,7 +161,10 @@ function EditorShell({
               Edited {formatDistanceToNow(note.updatedAt, { addSuffix: true })}
             </span>
             <button
-              onClick={() => setShowBacklinks((v) => !v)}
+              onClick={() => {
+                setShowBacklinks((v) => !v);
+                setShowHistory(false);
+              }}
               title={showBacklinks ? "Hide backlinks" : "Show backlinks"}
               className="flex items-center gap-1.5 rounded-md border border-line bg-overlay px-2 py-1 transition-colors duration-150 hover:border-line-strong"
             >
@@ -150,6 +175,22 @@ function EditorShell({
               )}
               <Link2 className="size-3.5" />
               {backlinkCount}
+            </button>
+            <button
+              onClick={() => {
+                setShowHistory((v) => !v);
+                setShowBacklinks(false);
+              }}
+              title={showHistory ? "Hide history" : "Show history"}
+              className="flex items-center gap-1.5 rounded-md border border-line bg-overlay px-2 py-1 transition-colors duration-150 hover:border-line-strong"
+            >
+              {showHistory ? (
+                <PanelRightClose className="size-3.5" />
+              ) : (
+                <PanelRightOpen className="size-3.5" />
+              )}
+              <History className="size-3.5" />
+              {snapshotCount ?? 0}
             </button>
           </div>
 
@@ -167,6 +208,9 @@ function EditorShell({
           {/* block editor */}
           <BlockEditor
             initialJson={initial.json}
+            noteTitles={allNotes
+              .filter((n) => n.id !== noteId)
+              .map((n) => n.title)}
             onChange={(blocks) => setJson(JSON.stringify(blocks))}
           />
 
@@ -179,6 +223,14 @@ function EditorShell({
           note={note}
           notes={allNotes}
           onClose={() => setShowBacklinks(false)}
+        />
+      )}
+
+      {showHistory && (
+        <HistoryPanel
+          noteId={noteId}
+          onClose={() => setShowHistory(false)}
+          onRestored={onRestored}
         />
       )}
     </div>

@@ -3,10 +3,11 @@ import type { Note } from "@/db/schema";
 /**
  * Wiki-link engine.
  *
- * Links are plain text — [[Some title]] — so they survive any editor. On save,
- * `transformWikiLinks` upgrades them into real BlockNote link marks with
- * `synapse:<title>` hrefs (clickable + styled). `blocksToText` flattens any
- * document shape back to plain text for search, excerpts and backlink scanning.
+ * Links are plain text — [[Some title]] — as the user types them. On save,
+ * `transformWikiLinks` upgrades them into BlockNote's native inline link
+ * content (`{type:"link", href:"synapse:<title>", content:[...]}`) so they
+ * render as clickable, styled anchors. `blocksToText` flattens any document
+ * shape back to plain text for search, excerpts and backlink scanning.
  */
 
 export const WIKILINK_RE = /\[\[(.+?)\]\]/g;
@@ -38,15 +39,29 @@ export function blocksToText(blocks: unknown): string {
   if (typeof blocks === "string") return blocks;
   if (!Array.isArray(blocks)) return "";
 
+  /** Concatenates a content array in reading order, recursing into links. */
+  const inlineText = (arr: unknown[]): string => {
+    let out = "";
+    for (const raw of arr) {
+      if (!isRecord(raw)) continue;
+      if (typeof raw.text === "string") {
+        out += raw.text;
+      } else if (Array.isArray(raw.content)) {
+        // Native link inline content ({type:"link", content:[runs]}).
+        out += inlineText(raw.content);
+      }
+    }
+    return out;
+  };
+
   const parts: string[] = [];
   const walk = (arr: unknown[]) => {
     for (const raw of arr) {
       if (!isRecord(raw)) continue;
       const block = raw as BlockLike;
       if (Array.isArray(block.content)) {
-        for (const run of block.content) {
-          if (isRecord(run) && typeof run.text === "string") parts.push(run.text);
-        }
+        const t = inlineText(block.content).trim();
+        if (t) parts.push(t);
       } else if (typeof block.content === "string") {
         parts.push(block.content);
       }
@@ -58,8 +73,8 @@ export function blocksToText(blocks: unknown): string {
 }
 
 /**
- * Split text runs containing [[links]] into plain runs + link-marked runs,
- * recursively through nested blocks. Returns blocks safe to store.
+ * Split text runs containing [[links]] into plain runs + native link inline
+ * content, recursively through nested blocks. Returns blocks safe to store.
  */
 export function transformWikiLinks(blocks: unknown): unknown {
   if (!Array.isArray(blocks)) return blocks;
@@ -84,23 +99,26 @@ function transformRuns(runs: unknown[]): unknown[] {
       continue;
     }
     const run = raw as Record<string, unknown>;
+    if (run.type === "link") {
+      // Already a link (native or external) — don't double-transform it.
+      out.push(raw);
+      continue;
+    }
     if (run.type !== "text" || typeof run.text !== "string" || !run.text.includes("[[")) {
       out.push(raw);
       continue;
     }
     const text = run.text;
+    const styles = isRecord(run.styles) ? run.styles : {};
     const re = new RegExp(WIKILINK_RE.source, "g");
     let last = 0;
     let m: RegExpExecArray | null;
     while ((m = re.exec(text))) {
       if (m.index > last) out.push({ ...run, text: text.slice(last, m.index) });
       out.push({
-        ...run,
-        text: m[0],
-        styles: {
-          ...(isRecord(run.styles) ? run.styles : {}),
-          link: `synapse:${m[1].trim()}`,
-        },
+        type: "link",
+        href: `synapse:${encodeURIComponent(m[1].trim())}`,
+        content: [{ type: "text", text: m[0], styles }],
       });
       last = m.index + m[0].length;
     }

@@ -25,6 +25,8 @@ interface RunStyles {
 interface TextRun {
   type?: string;
   text?: string;
+  href?: string;
+  content?: unknown;
   styles?: RunStyles;
   [key: string]: unknown;
 }
@@ -92,11 +94,29 @@ function renderCode(text: string): string {
 }
 
 function renderRun(run: TextRun): string {
+  // Native link inline content ({type:"link", href, content:[runs]}).
+  if (run.type === "link") {
+    const inner = Array.isArray(run.content)
+      ? (run.content as TextRun[]).map((r) => renderRun(r)).join("")
+      : "";
+    const href = typeof run.href === "string" ? run.href : "";
+    if (href.startsWith("synapse:")) {
+      let title = href.slice("synapse:".length).trim();
+      try {
+        title = decodeURIComponent(title);
+      } catch {
+        /* keep the raw title */
+      }
+      return `[[${title}]]`;
+    }
+    return href ? `[${inner}](${href})` : inner;
+  }
+
   const raw = typeof run.text === "string" ? run.text : "";
   let text = raw;
   const styles = isRecord(run.styles) ? run.styles : undefined;
 
-  // Wiki-links: normalize synapse:Title hrefs back to [[Title]].
+  // Legacy wiki-link pseudo-styles: normalize synapse:Title hrefs back to [[Title]].
   if (styles && typeof styles.link === "string" && styles.link.startsWith("synapse:")) {
     text = `[[${styles.link.slice("synapse:".length).trim()}]]`;
   } else if (styles && typeof styles.link === "string" && styles.link) {

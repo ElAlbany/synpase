@@ -17,6 +17,15 @@ export interface Note {
   updatedAt: number;
 }
 
+/** Point-in-time copy of a note, kept for local version history. */
+export interface NoteSnapshot {
+  id: string;
+  noteId: string;
+  title: string;
+  content: unknown;
+  createdAt: number;
+}
+
 export interface AppSettings {
   id: "settings";
   theme: "light" | "dark" | "system";

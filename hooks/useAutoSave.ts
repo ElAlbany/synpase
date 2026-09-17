@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useDebounce } from "./useDebounce";
 import { useNotesStore } from "@/stores/useNotesStore";
 import { updateNote } from "@/db/notes";
+import { maybeSnapshot } from "@/db/history";
 
 export interface AutoSaveValues {
   title: string;
@@ -51,7 +52,7 @@ export function useAutoSave(noteId: string, values: AutoSaveValues) {
       void updateNote(noteId, {
         title: parsed.title,
         content: JSON.parse(parsed.json),
-      });
+      }).then(() => maybeSnapshot(noteId));
     };
   }, [noteId]);
 }

@@ -167,16 +167,19 @@ function GraphInner() {
   const flowEdges: Edge[] = React.useMemo(
     () =>
       gEdges.map((e: GraphEdge, i) => {
-        let dimmed =
+        const filteredOut =
           matchSet !== null && (!matchSet.has(e.source) || !matchSet.has(e.target));
-        if (hoverId) dimmed = e.source !== hoverId && e.target !== hoverId;
+        // Hover isolation: edges not touching the hovered node fade to almost
+        // nothing; edges on the active path brighten with the accent.
+        const onActivePath = hoverId !== null && (e.source === hoverId || e.target === hoverId);
         return {
           id: `e${i}`,
           source: e.source,
           target: e.target,
           style: {
-            stroke: "var(--line-strong)",
-            strokeOpacity: dimmed ? 0.08 : 0.45,
+            stroke: onActivePath ? "var(--accent)" : "var(--line-strong)",
+            strokeWidth: onActivePath ? 1.6 : 1.2,
+            strokeOpacity: filteredOut ? 0.1 : onActivePath ? 0.9 : 1,
           },
         };
       }),

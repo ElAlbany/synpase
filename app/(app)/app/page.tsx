@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { db } from "@/db";
 import { noteExcerpt } from "@/db/notes";
-import { seedNotesIfEmpty } from "@/db/seed";
+import { seedWelcomePack } from "@/db/seed";
 import { tagColor } from "@/lib/tree";
 import { useNotesStore } from "@/stores/useNotesStore";
 
@@ -30,7 +30,7 @@ export default function HomePage() {
   React.useEffect(() => {
     if (notes && notes.length === 0) {
       setSeeding(true);
-      seedNotesIfEmpty().finally(() => setSeeding(false));
+      seedWelcomePack().finally(() => setSeeding(false));
     }
   }, [notes]);
 
@@ -65,7 +65,7 @@ export default function HomePage() {
 
   const handleSeed = async () => {
     setSeeding(true);
-    await seedNotesIfEmpty();
+    await seedWelcomePack();
     setSeeding(false);
   };
 

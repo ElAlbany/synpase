@@ -35,7 +35,8 @@ export function Showcase() {
 
   return (
     <section
-      className="px-6 pb-30 [perspective:1600px]"
+      id="demo"
+      className="scroll-mt-20 px-6 pb-30 [perspective:1600px]"
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
