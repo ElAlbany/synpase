@@ -61,7 +61,11 @@ export function BlockEditor({
     rect: SuggestRect;
   } | null>(null);
 
-  /** Recompute the open `[[query` (if any) at the caret. */
+  /**
+   * Recompute the open `[[query` (if any) at the caret, and convert a just-
+   * completed `[[title]]` into native link inline content so the link turns
+   * into a colored, clickable pill immediately (no save/reload needed).
+   */
   const refreshSuggest = React.useCallback(() => {
     const view = editor.prosemirrorView;
     if (!view) return;
@@ -71,6 +75,30 @@ export function BlockEditor({
       return;
     }
     const from = state.selection.from;
+
+    // Live conversion: a completed [[title]] at the end of the text node
+    // right before the caret. Skipped when it's already inside a link node
+    // (nodeBefore would be the link, not a text node) — no loop.
+    const nodeBefore = state.doc.resolve(from).nodeBefore;
+    if (nodeBefore?.isText) {
+      const text = nodeBefore.text ?? "";
+      const done = /\[\[([^\[\]]+)\]\]$/.exec(text);
+      const title = done?.[1].trim();
+      const linkType = state.schema.nodes["link"];
+      if (done && title && linkType) {
+        const start = from - done[0].length;
+        const linkNode = linkType.create(
+          { href: `synapse:${encodeURIComponent(title)}` },
+          state.schema.text(`[[${title}]]`)
+        );
+        const tr = state.tr
+          .replaceWith(start, from, linkNode)
+          .insert(start + linkNode.nodeSize, state.schema.text(" "));
+        view.dispatch(tr.scrollIntoView());
+        return;
+      }
+    }
+
     const textBefore = state.doc.textBetween(Math.max(0, from - 160), from, "\n", "\0");
     const m = /\[\[([^\[\]]*)$/.exec(textBefore);
     if (!m) {

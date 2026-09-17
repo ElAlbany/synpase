@@ -32,7 +32,7 @@ export function Hero() {
     <header className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-36 pb-20 text-center">
       <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-line bg-overlay px-4 py-[7px] text-[13px] text-mute backdrop-blur-md">
         <span className="live-dot" />
-        Local-first · Your data never leaves your device
+        Local-first · your ideas never leave your device
       </div>
 
       <h1 className="max-w-[14ch] text-[clamp(42px,6.4vw,84px)] leading-[1.05] font-bold tracking-[-0.03em]">
@@ -41,9 +41,11 @@ export function Hero() {
       </h1>
 
       <p className="mt-6.5 max-w-[52ch] text-lg leading-relaxed text-mute">
-        Synapse is a block-based knowledge base with bi-directional links, a living
-        graph, and instant full-text search — fully offline, in your browser. No
-        accounts. No cloud. Just your ideas.
+        Synapse turns scattered notes into a living map of your thinking. Link
+        ideas with{" "}
+        <span className="font-mono text-[0.95em] text-wiki">[[wiki-links]]</span>,
+        watch them connect in the graph, and find anything in an instant — in
+        your browser, even offline. No accounts. No cloud. Just your ideas.
       </p>
 
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
@@ -53,7 +55,7 @@ export function Hero() {
         </Link>
         <a href="#demo" className={buttonVariants({ variant: "ghost", size: "lg" })}>
           <Play className="size-3.75" />
-          Watch demo
+          See how it looks
         </a>
       </div>
 

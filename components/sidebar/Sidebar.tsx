@@ -244,6 +244,13 @@ export function Sidebar() {
             active={pathname === "/app/graph"}
             collapsed={collapsed}
           />
+          <NavItem
+            href="/app/guide"
+            icon={<BookOpen className="size-4" />}
+            label="Guide"
+            active={pathname === "/app/guide"}
+            collapsed={collapsed}
+          />
         </nav>
 
         <div className="mx-3 mt-3 flex-none border-t border-line" />

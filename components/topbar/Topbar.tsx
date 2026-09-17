@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Check, ChevronRight, Loader2 } from "lucide-react";
+import { Check, ChevronRight, House, Loader2 } from "lucide-react";
 import { db } from "@/db";
 import type { Note } from "@/db/schema";
 import { useNotesStore } from "@/stores/useNotesStore";
@@ -27,9 +27,16 @@ export function Topbar() {
       <nav className="flex min-w-0 items-center gap-1.5 text-[13px] text-faint">
         <Link
           href="/app"
-          className="rounded-md px-1.5 py-0.5 transition-colors duration-150 hover:bg-overlay hover:text-ink"
+          aria-label="Home"
+          title="Home"
+          className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors duration-150 ${
+            pathname === "/app"
+              ? "border-line bg-overlay text-ink"
+              : "border-transparent text-mute hover:border-line hover:bg-overlay hover:text-ink"
+          }`}
         >
-          Home
+          <House className="size-4 flex-none" />
+          <span className="hidden sm:inline">Home</span>
         </Link>
         {noteId && (
           <>

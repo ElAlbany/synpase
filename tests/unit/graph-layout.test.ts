@@ -184,4 +184,56 @@ describe("layoutGraph", () => {
   it("returns an empty array for no nodes", () => {
     expect(layoutGraph([], [])).toEqual([]);
   });
+
+  it("keeps connected clusters on the left and singletons on the right", () => {
+    // Cluster: a — b — c (linked). Singles: s1, s2, s3.
+    const notes = [
+      note({ id: "a", title: "A" }),
+      note({ id: "b", title: "B", content: "[[A]]" }),
+      note({ id: "c", title: "C", content: "[[B]]" }),
+      note({ id: "s1", title: "S1" }),
+      note({ id: "s2", title: "S2" }),
+      note({ id: "s3", title: "S3" }),
+    ];
+    const { nodes, edges } = buildGraphData(notes);
+    const laid = layoutGraph(nodes, edges);
+    const byId = new Map(laid.map((n) => [n.id, n]));
+
+    const clusterXs = ["a", "b", "c"].map((id) => byId.get(id)!.x);
+    const singleXs = ["s1", "s2", "s3"].map((id) => byId.get(id)!.x);
+    const clusterMax = Math.max(...clusterXs);
+    const singleMin = Math.min(...singleXs);
+    // Clear left/right separation between the two zones.
+    expect(clusterMax).toBeLessThan(singleMin);
+    // Singletons sit on a tidy grid: identical y for the first row.
+    expect(byId.get("s1")!.y).toBe(byId.get("s2")!.y);
+  });
+
+  it("places every singleton on the grid even with no edges at all", () => {
+    const notes = [note({ id: "w" }), note({ id: "x" }), note({ id: "y" }), note({ id: "z" })];
+    const { nodes, edges } = buildGraphData(notes);
+    const laid = layoutGraph(nodes, edges);
+    const byId = new Map(laid.map((n) => [n.id, n]));
+    // 4 singles → 2x2 grid (sorted by id): w,x share the first row, y,z the next.
+    expect(byId.get("w")!.y).toBe(byId.get("x")!.y);
+    expect(byId.get("y")!.y).toBe(byId.get("z")!.y);
+    expect(byId.get("w")!.y).not.toBe(byId.get("y")!.y);
+  });
+
+  it("separates two independent clusters into different slots", () => {
+    const notes = [
+      note({ id: "a", title: "A" }),
+      note({ id: "b", title: "B", content: "[[A]]" }),
+      note({ id: "p", title: "P" }),
+      note({ id: "q", title: "Q", content: "[[P]]" }),
+    ];
+    const { nodes, edges } = buildGraphData(notes);
+    const laid = layoutGraph(nodes, edges);
+    const byId = new Map(laid.map((n) => [n.id, n]));
+    // Cluster {a,b} occupies slot column 0, cluster {p,q} column 1 —
+    // so a and p land in different slot x-ranges.
+    const clusterAB = (byId.get("a")!.x + byId.get("b")!.x) / 2;
+    const clusterPQ = (byId.get("p")!.x + byId.get("q")!.x) / 2;
+    expect(Math.abs(clusterAB - clusterPQ)).toBeGreaterThan(200);
+  });
 });

@@ -1,9 +1,9 @@
 const items = [
-  "Block-based editor",
-  "Bi-directional links",
-  "Interactive knowledge graph",
+  "A calm, block-based editor",
+  "Bi-directional wiki-links",
+  "A living knowledge graph",
   "Instant full-text search",
-  "Offline-first IndexedDB",
+  "Works fully offline",
   "Daily notes",
   "Markdown export",
   "Command palette",

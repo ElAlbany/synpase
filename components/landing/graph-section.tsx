@@ -8,7 +8,7 @@ const EDGES: [number, number][] = [
   [5, 9], [6, 10], [1, 11], [4, 5], [0, 4],
 ];
 
-const LABELED = new Map<number, string>([[0, "design-principles.md"]]);
+const LABELED = new Map<number, string>([[0, "design principles"]]);
 
 export function GraphSection() {
   return (

@@ -81,11 +81,12 @@ export function Bento() {
             <Type className="size-4.5 stroke-accent-ink" />
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">
-            A block editor that thinks in ideas
+            A calm place to think
           </h3>
           <p className="text-[13.5px] leading-relaxed text-mute">
-            Notion-grade editing with slash commands, drag-and-drop nesting, and
-            markdown shortcuts — restyled to feel like a native part of Synapse.
+            A distraction-free writing space with slash commands, drag-and-drop
+            nesting, and markdown shortcuts — typography tuned for long-form
+            thinking, chrome that gets out of your way.
           </p>
           <div className="mini">
             /heading&nbsp;&nbsp;<span className="hl">/todo</span>&nbsp;&nbsp;/quote&nbsp;&nbsp;/code
@@ -111,8 +112,9 @@ export function Bento() {
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">Search that keeps up</h3>
           <p className="text-[13.5px] leading-relaxed text-mute">
-            MiniSearch-powered full-text search across titles and content, with
-            highlighted matches — all client-side, all instant.
+            Find any note by a word you half-remember — titles, sentences,
+            even with typos. Highlighted matches, instantly, entirely on your
+            device.
           </p>
         </Card>
 
@@ -134,8 +136,8 @@ export function Bento() {
           </div>
           <h3 className="mb-2 mt-4 text-base font-semibold">Yours, even offline</h3>
           <p className="text-[13.5px] leading-relaxed text-mute">
-            Everything lives in IndexedDB on your device. Export your whole vault as
-            Markdown or JSON anytime. No lock-in, ever.
+            Everything lives on your device, not in someone&apos;s cloud. Export
+            your whole vault as Markdown or JSON anytime — no lock-in, ever.
           </p>
         </Card>
       </div>

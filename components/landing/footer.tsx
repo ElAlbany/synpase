@@ -1,5 +1,11 @@
 import { LogoMark } from "@/components/landing/nav";
 
+const LINKS: Array<[string, string]> = [
+  ["Features", "#features"],
+  ["Graph", "#graph"],
+  ["Privacy", "#privacy"],
+];
+
 export function Footer() {
   return (
     <footer
@@ -12,17 +18,20 @@ export function Footer() {
       </div>
       <div>Your knowledge graph. Write, connect, explore — fully offline.</div>
       <div className="my-4.5 flex justify-center gap-6">
-        {["GitHub", "Features", "Privacy", "Changelog"].map((l) => (
+        {LINKS.map(([label, href]) => (
           <a
-            key={l}
-            href="#"
+            key={label}
+            href={href}
             className="text-mute transition-colors duration-200 hover:text-ink"
           >
-            {l}
+            {label}
           </a>
         ))}
       </div>
-      <div>© 2026 Synapse · Built with Next.js, BlockNote &amp; Dexie</div>
+      <div>
+        © 2026 Synapse · Your second brain — entirely yours. No accounts, no
+        tracking, no cloud.
+      </div>
     </footer>
   );
 }

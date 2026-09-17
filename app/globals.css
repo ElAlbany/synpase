@@ -18,6 +18,7 @@
   --faint: #5d6169; /* was #6d7179 (4.2:1 on overlay, 4.7:1 on bg) — AA fix: now 5.4:1 / 5.9:1 */
   --accent: #4f4cd8;
   --accent-ink: #4a47d6;
+  --wiki: #4338ca; /* wiki-links: unmistakably a link, 8.6:1 on white */
   --violet: #8b5cf6;
   --teal: #0f766e;
   --danger: #e11d48;
@@ -48,6 +49,7 @@
   --faint: #7e828b;
   --accent: #6e6bff;
   --accent-ink: #cbc9ff;
+  --wiki: #8f8dff; /* wiki-links: vivid indigo, 7.5:1 on #0a0b0e */
   --violet: #a78bfa;
   --teal: #2dd4bf;
   --danger: #f87171;
@@ -83,6 +85,7 @@
   --color-warning: var(--warning);
   --color-success: var(--success);
   --color-accent-ink: var(--accent-ink);
+  --color-wiki: var(--wiki);
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -395,20 +398,22 @@
   padding-left: 2px;
   padding-right: 2px;
 }
-/* Synapse wiki-links: real BlockNote link marks with synapse: hrefs */
+/* Synapse wiki-links: real BlockNote link marks with synapse: hrefs.
+   Vivid indigo + underline so a link is unmistakable at a glance. */
 .bn-wrapper a[href^="synapse:"] {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.92em;
-  color: var(--accent-ink);
-  background: color-mix(in srgb, var(--accent) 13%, transparent);
-  border-bottom: 1.5px solid var(--accent);
+  font-weight: 500;
+  color: var(--wiki);
+  background: color-mix(in srgb, var(--wiki) 12%, transparent);
+  border-bottom: 1.5px solid var(--wiki);
   border-radius: 4px;
   padding: 0 4px;
   text-decoration: none;
   transition: background 0.18s var(--ease-out-expo);
 }
 .bn-wrapper a[href^="synapse:"]:hover {
-  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  background: color-mix(in srgb, var(--wiki) 26%, transparent);
 }
 
 /* Backlinks slide-over entrance */

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 function LogoMark({ size = 26 }: { size?: number }) {
@@ -28,10 +29,10 @@ export { LogoMark };
 export function Nav() {
   return (
     <nav className="glass fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-line px-8 py-4">
-      <div className="flex items-center gap-2.5 text-base font-semibold">
+      <Link href="/" className="flex items-center gap-2.5 text-base font-semibold">
         <LogoMark />
         Synapse
-      </div>
+      </Link>
       <div className="hidden items-center gap-7 text-sm text-mute md:flex">
         <a href="#features" className="transition-colors duration-200 hover:text-ink">
           Features
@@ -44,14 +45,11 @@ export function Nav() {
         </a>
       </div>
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm">
-          GitHub
-        </Button>
-        <a href="/app">
+        <Link href="/app">
           <Button variant="primary" size="sm">
             Open App
           </Button>
-        </a>
+        </Link>
       </div>
     </nav>
   );

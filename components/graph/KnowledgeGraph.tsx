@@ -63,7 +63,11 @@ function NoteFlowNodeView({ data }: NodeProps<NoteFlowNode>) {
           width: r * 1.6,
           height: r * 1.6,
           background: `radial-gradient(circle at 35% 30%, ${color}, ${color}99)`,
-          boxShadow: `0 0 ${Math.round(r * 0.9)}px ${color}aa`,
+          // Untagged notes get a clear ring so the dot reads as a node even
+          // without a tag color.
+          boxShadow: g.tag
+            ? `0 0 ${Math.round(r * 0.9)}px ${color}aa`
+            : `0 0 ${Math.round(r * 0.9)}px ${color}aa, 0 0 0 2px var(--line-strong)`,
         }}
       />
       {data.isHere && (
@@ -305,6 +309,11 @@ function GraphInner() {
             Reset view
           </button>
         </div>
+        {gEdges.length > 0 && (
+          <p className="mt-1.5 text-[10.5px] leading-snug text-faint">
+            Linked clusters on the left · unlinked notes on the right
+          </p>
+        )}
       </div>
 
       <ReactFlow
