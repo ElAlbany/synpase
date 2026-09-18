@@ -32,6 +32,7 @@ next-env.d.ts
 # project docs (local reference only)
 synpase project documentation.txt
 synapse-design-spec.md
+SYNAPSE-TECH-GUIDE.md
 
 # editor
 .vscode/
