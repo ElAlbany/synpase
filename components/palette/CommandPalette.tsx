@@ -8,17 +8,20 @@ import {
   CornerDownLeft,
   FilePlus2,
   FileText,
+  FileUp,
   House,
   Moon,
   Network,
   Plus,
   Search,
+  Sparkles,
   Sun,
   Tag,
   X,
 } from "lucide-react";
 import { db } from "@/db";
 import { createNote, noteExcerpt } from "@/db/notes";
+import { seedWelcomePack } from "@/db/seed";
 import { blocksToText } from "@/lib/wikilinks";
 import { tagColor } from "@/lib/tree";
 import { useUIStore } from "@/stores/useUIStore";
@@ -304,6 +307,23 @@ export function CommandPalette() {
       { name: "Go to Search", keywords: "search find filter", icon: <Search className="size-4 flex-none" />, run: () => go("/app/search") },
       { name: "New note", keywords: "new create blank", icon: <FilePlus2 className="size-4 flex-none" />, run: () => makeNote() },
       {
+        name: "Import Markdown",
+        keywords: "import markdown md file upload",
+        icon: <FileUp className="size-4 flex-none" />,
+        run: () => {
+          // The hidden file input lives in the Sidebar; ask it to open.
+          window.dispatchEvent(new Event("synapse:import-markdown"));
+        },
+      },
+      {
+        name: "Add welcome & guide notes",
+        keywords: "welcome guide sample demo seed starter",
+        icon: <Sparkles className="size-4 flex-none" />,
+        run: () => {
+          void seedWelcomePack();
+        },
+      },
+      {
         name: "Toggle theme",
         keywords: "theme dark light mode",
         icon: resolvedTheme === "dark" ? <Sun className="size-4 flex-none" /> : <Moon className="size-4 flex-none" />,
@@ -389,7 +409,7 @@ export function CommandPalette() {
         if (e.target === e.currentTarget) close();
       }}
     >
-      {/* backdrop */}
+      {/* backdrop — clicking/tapping it closes the palette (mobile-friendly) */}
       <div
         className={cn(
           "absolute inset-0 bg-black/45 backdrop-blur-[6px] transition-opacity duration-[240ms]",
@@ -397,6 +417,10 @@ export function CommandPalette() {
         )}
         style={{ transitionTimingFunction: EASE }}
         aria-hidden
+        onMouseDown={(e) => {
+          e.preventDefault();
+          close();
+        }}
       />
 
       {/* panel */}

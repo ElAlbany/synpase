@@ -81,6 +81,14 @@ export function Sidebar() {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
+  // The command palette offers "Import Markdown" on every screen size; it
+  // asks us to open the hidden file picker via this event.
+  useEffect(() => {
+    const onImport = () => fileInputRef.current?.click();
+    window.addEventListener("synapse:import-markdown", onImport);
+    return () => window.removeEventListener("synapse:import-markdown", onImport);
+  }, []);
+
   // Template menu: outside-click and Escape close (ExportMenu pattern).
   useEffect(() => {
     if (!menuOpen) return;

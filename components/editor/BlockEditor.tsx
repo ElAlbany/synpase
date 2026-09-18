@@ -17,7 +17,12 @@ import { WikiLinkSuggest, type SuggestRect } from "@/components/editor/WikiLinkS
 function parseInitial(json: string): PartialBlock[] | undefined {
   try {
     const v: unknown = JSON.parse(json);
-    if (Array.isArray(v) && v.length > 0) return sanitizeBlocks(v);
+    if (Array.isArray(v) && v.length > 0) {
+      // Upgrade stored plain-text [[links]] (and legacy pseudo-styles) to
+      // native link inline content before BlockNote sees the document, so
+      // old notes show colored, clickable pills immediately.
+      return sanitizeBlocks(transformWikiLinks(v) as unknown[]);
+    }
   } catch {
     /* fall through to undefined */
   }
