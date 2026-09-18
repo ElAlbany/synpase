@@ -82,23 +82,23 @@ export function BlockEditor({
     const from = state.selection.from;
 
     // Live conversion: a completed [[title]] at the end of the text node
-    // right before the caret. Skipped when it's already inside a link node
-    // (nodeBefore would be the link, not a text node) — no loop.
+    // right before the caret becomes a link mark (BlockNote implements links
+    // as a ProseMirror MARK, not a node). Skipped when already inside a link
+    // (nodeBefore is the marked text, and re-marking is harmless anyway).
     const nodeBefore = state.doc.resolve(from).nodeBefore;
     if (nodeBefore?.isText) {
       const text = nodeBefore.text ?? "";
       const done = /\[\[([^\[\]]+)\]\]$/.exec(text);
       const title = done?.[1].trim();
-      const linkType = state.schema.nodes["link"];
-      if (done && title && linkType) {
+      const linkMark = state.schema.marks["link"];
+      if (done && title && linkMark && !linkMark.isInSet(nodeBefore.marks)) {
         const start = from - done[0].length;
-        const linkNode = linkType.create(
-          { href: `synapse:${encodeURIComponent(title)}` },
-          state.schema.text(`[[${title}]]`)
-        );
+        const marked = state.schema.text(`[[${title}]]`, [
+          linkMark.create({ href: `synapse:${encodeURIComponent(title)}` }),
+        ]);
         const tr = state.tr
-          .replaceWith(start, from, linkNode)
-          .insert(start + linkNode.nodeSize, state.schema.text(" "));
+          .replaceWith(start, from, marked)
+          .insert(start + marked.nodeSize, state.schema.text(" "));
         view.dispatch(tr.scrollIntoView());
         return;
       }

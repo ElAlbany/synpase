@@ -3,21 +3,30 @@
 Your personal knowledge graph. Write, connect, and explore ideas — fully offline.
 
 > Design language: **"Graphite Aurora"** — dark-first, calm on the surface, alive underneath.
-> Full spec: `synapse-design-spec.md`.
+> Full spec: `synapse-design-spec.md` · Deep technical guide: `SYNAPSE-TECH-GUIDE.md`
 
 ## Features
 
 - **Block editor** (BlockNote, Synapse-themed) with autosave — writes live in
   IndexedDB, works fully offline
-- **[[Wiki-links]] + backlinks** — plain-text links upgraded to clickable marks
-  on save; backlinks panel with context snippets; links auto-create notes
-- **Knowledge graph** — force-directed canvas (@xyflow/react), node size by
-  backlink count, color by tag
+- **[[Wiki-links]] + backlinks** — type `[[` for autocomplete; links turn into
+  clickable blue pills instantly (and on load for older notes); backlinks panel
+  with context snippets; links auto-create notes Obsidian-style
+- **Knowledge graph** — force-directed canvas (@xyflow/react): linked clusters
+  grouped on the left, unlinked notes in a tidy grid on the right; node size by
+  backlink count, color by tag, hollow rings for untagged notes; click to select,
+  double-click to open, click empty space to deselect
 - **Full-text search** (MiniSearch) with title boosting, prefix/fuzzy match,
   tag filters and match highlighting
-- **Command palette** — `Cmd/Ctrl+K` fuzzy jump/create/actions
+- **Command palette** — `Cmd/Ctrl+K` fuzzy jump/create/actions — including
+  Import Markdown and Add welcome notes, reachable on mobile too
 - **Tags** with a stable hashed color palette, plus **daily notes** and
   **Markdown/JSON export**
+- **Version history** — local snapshots per note (up to 30), two-click restore
+- **Markdown import** — defensive parser with unsafe-scheme rejection
+- **Note templates** — meeting, journal, project brief, reading, weekly review
+- **User guide** — built-in how-to at `/app/guide` (also linked from Home)
+- **PWA** — installable, service worker, works offline
 - **Themes** — dark / light / system via next-themes
 
 ## Stack
@@ -48,13 +57,15 @@ npm run test:coverage  # coverage report (v8)
 ```
 
 - **Unit tests** (`tests/unit/`) — pure logic, no rendering: wiki-link
-  extraction/transformation, backlinks, tree building + tag colors, MiniSearch
-  indexing/highlighting/excerpts, deterministic graph layout, Markdown/JSON
-  export, daily-note titles.
+  extraction/transformation, sanitize migration, BlockNote round-trip regression,
+  backlinks, graph data + deterministic two-zone layout, MiniSearch
+  indexing/highlighting/excerpts, Markdown/JSON export & import, version
+  history, templates, tree building + tag colors, daily-note titles.
 - **Integration tests** (`tests/integration/`) — Dexie runs on
   `fake-indexeddb` (in-memory IndexedDB) and components are rendered with
-  Testing Library: notes CRUD helpers, the ⌘K command palette (filter,
-  navigate, create, keyboard), and the tag editor (add/remove/limits).
+  Testing Library: notes CRUD, the ⌘K command palette (filter, navigate,
+  create, keyboard), tag editor, backlinks panel, wiki-link navigation,
+  suggestion dropdown, welcome pack, guide page.
 - The database is cleared between tests (`db.notes` + `db.settings`), so
   suites are order-independent.
 
@@ -66,14 +77,21 @@ npm run test:coverage  # coverage report (v8)
 - [x] **Phase 3 — Graph & search**: React Flow graph, MiniSearch, command palette
 - [x] **Phase 4 — Power features**: daily notes, export, tags
 - [x] **Phase 5 — Quality**: test harness (Vitest + Testing Library + fake-indexeddb), unit & integration coverage
+- [x] **Phase 6 — Linking & graph repair**: native link storage (crash fix + self-healing migration), `[[` autocomplete, visible graph edges, idempotent welcome pack
+- [x] **Phase 7 — UX polish**: live link conversion + link colors, two-zone graph layout, select/double-click graph interactions, guide page, topbar home button, identity copy, responsive fixes
+
+## Docs
+
+- `synapse-design-spec.md` — the visual language (tokens, motion, screens)
+- `SYNAPSE-TECH-GUIDE.md` — how every feature works: libraries, architecture, design decisions, and what to learn before reading the code
 
 ## Structure
 
 ```
 app/
-  (marketing)/  landing page at /
-  (app)/app/    the app: home, note/[id], graph, search
-  layout.tsx    root layout (fonts, theme, aurora, grain)
+  page.tsx      landing page at /
+  (app)/app/    the app: home, note/[id], graph, search, daily, guide
+  layout.tsx    root layout (fonts, theme, aurora, grain, PWA register)
   globals.css   design tokens (Tailwind v4 @theme)
 components/
   ui/           button (cva variants)
@@ -106,16 +124,19 @@ types/          shared model types
 
 ## Notes & conventions
 
-- `Note.content` is a plain string in Phase 1; Phase 2 swaps in BlockNote JSON
-  (typed `unknown`, never indexed — zero schema migration needed).
+- `Note.content` is BlockNote JSON (typed `unknown`, never indexed — zero schema
+  migrations when BlockNote evolves). Legacy Phase-1 plain strings are still
+  accepted everywhere via defensive helpers.
 - Booleans are not valid IndexedDB keys: `isFavorite` is filtered in memory.
 - Deletes re-parent children instead of orphaning subtrees.
 - Auto-save debounces 800ms after the last keystroke (content-signature based,
   immune to live-query identity storms), flushes pending edits on unmount so
   navigating away never loses typed work, and drives the topbar Saving → Saved chip.
-- `[[wiki-links]]` are plain text in storage; on save they're upgraded to
-  BlockNote link marks (`synapse:<title>` hrefs). Clicking one navigates, or
-  creates the note Obsidian-style if it doesn't exist yet. Backlinks are
+- `[[wiki-links]]` are stored as BlockNote **native link inline content**
+  (`synapse:<title>` hrefs, visible text kept as `[[Title]]`). Plain-text links are
+  upgraded live while typing, at load, and on save; legacy pseudo-style links
+  self-heal through `lib/sanitize-blocks.ts`. Clicking a link navigates, or creates
+  the note Obsidian-style if it doesn't exist yet. Backlinks and graph edges are
   computed by scanning note text — no links table needed at this scale.
 
 All motion uses `--ease-out-expo` (`cubic-bezier(.16,1,.3,1)`) with 120–400ms durations,

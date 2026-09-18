@@ -37,6 +37,7 @@ interface NoteNodeData extends Record<string, unknown> {
   graph: GraphNode;
   dimmed: boolean;
   isHere: boolean;
+  selected: boolean;
 }
 
 type NoteFlowNode = Node<NoteNodeData, "note">;
@@ -46,8 +47,9 @@ function NoteFlowNodeView({ data }: NodeProps<NoteFlowNode>) {
   const g = data.graph;
   const color = g.tag ? tagColor(g.tag) : "var(--accent)";
   const r = g.radius;
+  const glow = `0 0 ${Math.round(r * 0.9)}px ${g.tag ? `${color}aa` : "rgba(110,107,255,.55)"}`;
   return (
-    <div className={cn("kg-node", data.dimmed && "kg-dim")}>
+    <div className={cn("kg-node", data.dimmed && "kg-dim", data.selected && "kg-selected")}>
       <Handle type="target" position={Position.Top} className="kg-handle" isConnectable={false} />
       <div
         className="kg-halo"
@@ -62,12 +64,15 @@ function NoteFlowNodeView({ data }: NodeProps<NoteFlowNode>) {
         style={{
           width: r * 1.6,
           height: r * 1.6,
-          background: `radial-gradient(circle at 35% 30%, ${color}, ${color}99)`,
-          // Untagged notes get a clear ring so the dot reads as a node even
-          // without a tag color.
-          boxShadow: g.tag
-            ? `0 0 ${Math.round(r * 0.9)}px ${color}aa`
-            : `0 0 ${Math.round(r * 0.9)}px ${color}aa, 0 0 0 2px var(--line-strong)`,
+          // Untagged notes render as a hollow indigo ring (matches the
+          // landing-page constellation) so they're visible without a tag.
+          background: g.tag
+            ? `radial-gradient(circle at 35% 30%, ${color}, ${color}99)`
+            : "transparent",
+          border: g.tag ? "none" : `2px solid ${color}`,
+          boxShadow: data.selected
+            ? `${glow}, 0 0 0 3px color-mix(in srgb, ${color} 45%, transparent)`
+            : glow,
         }}
       />
       {data.isHere && (
@@ -95,7 +100,7 @@ function GraphInner() {
   const liveNotes = useLiveQuery(() => db.notes.toArray(), []);
   const notes = liveNotes ?? NO_NOTES;
 
-  const [hoverId, setHoverId] = React.useState<string | null>(null);
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [activeTags, setActiveTags] = React.useState<ReadonlySet<string>>(new Set());
 
@@ -137,7 +142,8 @@ function GraphInner() {
 
   /**
    * Lit set from the search/tag filters. `null` = nothing filtered,
-   * everything lit. Hover isolation is layered on top.
+   * everything lit. Selection (single click) only highlights the node and
+   * its edges — nothing else on the canvas reacts.
    */
   const matchSet = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -153,19 +159,18 @@ function GraphInner() {
 
   const flowNodes: NoteFlowNode[] = React.useMemo(
     () =>
-      gNodes.map((g) => {
-        let dimmed = matchSet !== null && !matchSet.has(g.id);
-        if (hoverId) {
-          dimmed = hoverId !== g.id && !neighborMap.get(hoverId)?.has(g.id);
-        }
-        return {
-          id: g.id,
-          type: "note" as const,
-          position: { x: g.x, y: g.y },
-          data: { graph: g, dimmed, isHere: g.id === hereId },
-        };
-      }),
-    [gNodes, matchSet, hoverId, hereId, neighborMap]
+      gNodes.map((g) => ({
+        id: g.id,
+        type: "note" as const,
+        position: { x: g.x, y: g.y },
+        data: {
+          graph: g,
+          dimmed: matchSet !== null && !matchSet.has(g.id),
+          isHere: g.id === hereId,
+          selected: g.id === selectedId,
+        },
+      })),
+    [gNodes, matchSet, hereId, selectedId]
   );
 
   const flowEdges: Edge[] = React.useMemo(
@@ -173,9 +178,9 @@ function GraphInner() {
       gEdges.map((e: GraphEdge, i) => {
         const filteredOut =
           matchSet !== null && (!matchSet.has(e.source) || !matchSet.has(e.target));
-        // Hover isolation: edges not touching the hovered node fade to almost
-        // nothing; edges on the active path brighten with the accent.
-        const onActivePath = hoverId !== null && (e.source === hoverId || e.target === hoverId);
+        // Selected node's connections brighten; everything else stays neutral.
+        const onActivePath =
+          selectedId !== null && (e.source === selectedId || e.target === selectedId);
         return {
           id: `e${i}`,
           source: e.source,
@@ -187,7 +192,7 @@ function GraphInner() {
           },
         };
       }),
-    [gEdges, matchSet, hoverId]
+    [gEdges, matchSet, selectedId]
   );
 
   // Fit the view once, when the first nodes arrive after mount.
@@ -320,9 +325,9 @@ function GraphInner() {
         nodes={flowNodes}
         edges={flowEdges}
         nodeTypes={nodeTypes}
-        onNodeClick={(_, node) => router.push(`/app/note/${node.id}`)}
-        onNodeMouseEnter={(_, node) => setHoverId(node.id)}
-        onNodeMouseLeave={() => setHoverId(null)}
+        onNodeClick={(_, node) => setSelectedId(node.id)}
+        onNodeDoubleClick={(_, node) => router.push(`/app/note/${node.id}`)}
+        onPaneClick={() => setSelectedId(null)}
         minZoom={0.05}
         maxZoom={2.5}
         fitView

@@ -26,7 +26,7 @@ export function Topbar() {
     <header className="glass flex h-14 flex-none items-center gap-2 border-b border-line px-4">
       <nav className="flex min-w-0 items-center gap-1.5 text-[13px] text-faint">
         <Link
-          href="/"
+          href="/app"
           aria-label="Home"
           title="Home"
           className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors duration-150 ${
@@ -50,23 +50,24 @@ export function Topbar() {
 
       <div className="flex-1" />
 
-      <ExportMenu note={note} noteId={noteId} />
-
       {/* save status chip */}
-      <div className="flex h-7 min-w-[88px] items-center justify-end gap-1.5 text-xs text-faint">
+      <div className="flex h-7 min-w-0 items-center justify-end gap-1.5 text-xs text-faint sm:min-w-[88px]">
         {saveStatus === "saving" && (
           <>
             <Loader2 className="size-3.5 animate-spin text-accent" />
-            <span>Saving…</span>
+            <span className="hidden sm:inline">Saving…</span>
           </>
         )}
         {saveStatus === "saved" && (
           <>
             <Check className="size-3.5 text-teal" />
-            <span className="text-teal">Saved</span>
+            <span className="hidden text-teal sm:inline">Saved</span>
           </>
         )}
       </div>
+
+      {/* export — pinned to the far right on every screen size */}
+      <ExportMenu note={note} noteId={noteId} />
     </header>
   );
 }

@@ -457,6 +457,8 @@
   transition: opacity 0.22s var(--ease-out-expo);
 }
 .kg-node.kg-dim { opacity: 0.15; }
+.kg-node.kg-selected .kg-dot { transform: scale(1.18); }
+.kg-node.kg-selected .kg-label { color: var(--ink); }
 
 .kg-halo {
   position: absolute;
