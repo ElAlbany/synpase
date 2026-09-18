@@ -96,20 +96,20 @@ export default function HomePage() {
       {/* new here? → guide */}
       <Link
         href="/app/guide"
-        className="card group mt-10 flex flex-wrap items-center gap-4 !p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40"
+        className="card group mt-10 flex flex-col items-stretch gap-4 !p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 sm:flex-row sm:items-center"
       >
         <span className="grid size-11 flex-none place-items-center rounded-xl border border-accent/25 bg-accent/12">
           <Sparkles className="size-5 stroke-[#B9B7FF]" />
         </span>
-        <span className="min-w-0 flex-1">
+        <span className="w-full min-w-0 flex-1">
           <span className="block text-[15px] font-semibold">New to Synapse?</span>
-          <span className="mt-0.5 block text-[13px] text-mute">
+          <span className="mt-0.5 block text-[13px] leading-relaxed text-mute">
             Learn how to write notes, link them with{" "}
             <span className="font-mono text-[12px] text-wiki">[[wiki-links]]</span>, and
             explore your graph — in five minutes.
           </span>
         </span>
-        <span className="flex flex-none items-center gap-1.5 rounded-[10px] bg-aurora px-4 py-2 text-sm font-medium text-white transition-transform duration-200 [transition-timing-function:cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-0.5">
+        <span className="flex w-full flex-none items-center justify-center gap-1.5 rounded-[10px] bg-aurora px-4 py-2 text-sm font-medium text-white transition-transform duration-200 [transition-timing-function:cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-0.5 sm:w-auto">
           How to use Synapse
           <Network className="size-4" />
         </span>

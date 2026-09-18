@@ -302,7 +302,7 @@ export function Sidebar() {
             <div
               role="menu"
               aria-label="New note options"
-              className="absolute right-3 left-3 top-full z-50 mt-1.5 rounded-xl border border-line bg-raised p-1 shadow-[0_12px_40px_rgba(0,0,0,.35)]"
+              className="absolute right-3 left-3 top-full z-50 mt-1.5 max-h-[min(480px,60vh)] overflow-y-auto rounded-xl border border-line bg-raised p-1 shadow-[0_12px_40px_rgba(0,0,0,.35)] [scrollbar-width:thin]"
             >
               <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-medium tracking-[0.08em] text-faint uppercase">
                 New from template
