@@ -26,7 +26,7 @@ export function Topbar() {
     <header className="glass flex h-14 flex-none items-center gap-2 border-b border-line px-4">
       <nav className="flex min-w-0 items-center gap-1.5 text-[13px] text-faint">
         <Link
-          href="/app"
+          href="/"
           aria-label="Home"
           title="Home"
           className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors duration-150 ${
