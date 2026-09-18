@@ -17,7 +17,7 @@ import {
   type NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Focus, Network, Search, X } from "lucide-react";
+import { ArrowRight, FileText, Focus, Network, Search, X } from "lucide-react";
 import { db } from "@/db";
 import type { Note } from "@/db/schema";
 import {
@@ -217,6 +217,12 @@ function GraphInner() {
     });
   }, []);
 
+  /** Selected node — drives the floating "Open note" card. */
+  const selected = React.useMemo(
+    () => gNodes.find((n) => n.id === selectedId) ?? null,
+    [gNodes, selectedId]
+  );
+
   // Still resolving the first live query — don't flash the empty state.
   if (liveNotes === undefined) {
     return (
@@ -340,6 +346,43 @@ function GraphInner() {
       >
         <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="var(--line)" />
       </ReactFlow>
+
+      {/* Selected-node action card — tap a node, open it from here;
+          clicking empty canvas dismisses it (onPaneClick clears the selection). */}
+      {selected && (
+        <div
+          className={cn(
+            "absolute bottom-5 left-1/2 z-10 w-[min(92%,360px)] -translate-x-1/2",
+            "rounded-xl border border-line bg-raised/90 p-3 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-[16px]",
+            "transition-all duration-[240ms] [transition-timing-function:cubic-bezier(.16,1,.3,1)]"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="grid size-9 flex-none place-items-center rounded-lg border border-line bg-overlay"
+              style={{ color: selected.tag ? tagColor(selected.tag) : "var(--accent)" }}
+            >
+              <FileText className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13.5px] font-semibold">
+                {selected.title}
+              </span>
+              <span className="block text-[11px] text-faint">
+                {selected.degree} backlink{selected.degree === 1 ? "" : "s"}
+                {selected.tag ? ` · #${selected.tag}` : ""} · double-click node to open
+              </span>
+            </span>
+            <button
+              onClick={() => router.push(`/app/note/${selected.id}`)}
+              className="flex flex-none cursor-pointer items-center gap-1.5 rounded-[10px] bg-aurora px-3.5 py-2 text-[13px] font-medium text-white transition-transform duration-200 [transition-timing-function:cubic-bezier(.16,1,.3,1)] hover:-translate-y-0.5"
+            >
+              Open note
+              <ArrowRight className="size-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
